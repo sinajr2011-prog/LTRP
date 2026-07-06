@@ -318,7 +318,7 @@ if ($action === 'ai_ask') {
     $question = $input['question'];
     $role = $input['role'] ?? 'student';
     
-    $AI_API_KEY = 'sk-ovzOyVmvlCXVg8EV6Low6Rm6LD2ikymwcBBbGf29WuIdYiFv';
+    $AI_API_KEY = '';
     $AI_API_URL = 'https://api.gapgpt.app/v1/chat/completions';
     $AI_MODEL = 'gpt-4o-mini';
     
