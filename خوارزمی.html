@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧮 پلتفرم جامع ریاضی - ابزارهای جامع محاسباتی</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --math: #a855f7;
+            --ai: #06b6d4;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            --gradient-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --gradient-ai: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
+            --shadow-lg: 0 20px 40px rgba(0,0,0,0.16);
+            --shadow-xl: 0 32px 64px rgba(0,0,0,0.2);
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.3);
+            --border-radius: 16px;
+            --border-radius-lg: 24px;
+            --border-radius-xl: 32px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --blur: blur(20px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--gradient-dark);
+            color: var(--light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--glass);
+            backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 6s linear infinite;
+            transform: rotate(45deg);
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .description {
+            font-size: 1.2em;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            padding: 0;
+            gap: 1px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .tab {
+            padding: 18px 20px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            background: #4a6fa5;
+            font-size: 15px;
+            transition: var(--transition);
+            flex: 1;
+            min-width: 140px;
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .tab:hover::before {
+            left: 100%;
+        }
+
+        .tab:hover {
+            background: #5a7fb5;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .tab.active {
+            background: var(--accent);
+            box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2);
+            transform: translateY(0);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+            min-height: 600px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* استایل بخش مقالات */
+        .articles-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .article-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent);
+        }
+        
+        .article-icon {
+            font-size: 2.5em;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .article-card h4 {
+            color: var(--light);
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            flex-grow: 1;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: var(--gray);
+        }
+        
+        .article-tag {
+            background: rgba(99, 102, 241, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+        
+        .article-preview {
+            color: var(--gray);
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+        
+        .article-read-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--warning);
+            font-size: 0.9em;
+        }
+        
+        /* مودال مقاله کامل */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background: var(--gradient-dark);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            border: 2px solid var(--accent);
+            box-shadow: var(--shadow-xl);
+            animation: modalSlideIn 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-title {
+            color: var(--accent);
+            font-size: 1.8em;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+        }
+        
+        .article-full-content {
+            line-height: 1.8;
+            color: var(--light);
+        }
+        
+        .article-full-content h3 {
+            color: var(--accent);
+            margin: 20px 0 10px;
+            font-size: 1.4em;
+        }
+        
+        .article-full-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .article-full-content ul, 
+        .article-full-content ol {
+            margin-right: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .article-full-content li {
+            margin-bottom: 8px;
+        }
+        
+        .article-full-content .formula {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border-right: 3px solid var(--math);
+            direction: ltr;
+            text-align: center;
+        }
+        
+        .article-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .article-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .article-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+        
+        /* ناوبری مقالات */
+        .articles-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+        }
+        
+        .nav-btn {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* فیلتر مقالات */
+        .articles-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            padding: 8px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9em;
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--gradient-primary);
+            border-color: transparent;
+        }
+        
+        /* جستجوی مقالات */
+        .articles-search {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            color: var(--light);
+            font-size: 16px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        /* کتابخانه مقالات */
+        .articles-library {
+            margin-top: 40px;
+        }
+        
+        .library-section {
+            margin-bottom: 40px;
+        }
+        
+        .library-section h3 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-right: 4px solid var(--accent);
+            padding-right: 15px;
+        }
+        
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .library-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .library-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px);
+        }
+        
+        .library-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .library-item h4 {
+            color: var(--light);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .library-item p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .articles-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .articles-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .articles-filter {
+                flex-direction: column;
+            }
+            
+            .library-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+       
+        <header>
+            <h1>🧮 پلتفرم جامع ریاضی</h1>
+            <p class="description">مجموعه‌ای کامل از ابزارهای محاسباتی، مسابقات ریاضی، هوش مصنوعی و تاریخچه ریاضیات</p>
+        </header>
+        
+        <div class="tabs" id="tabsContainer">
+            <!-- تب‌ها با JavaScript ساخته خواهند شد -->
+        </div>
+        
+        <div id="tabContents">
+            <!-- محتوای تب‌ها با JavaScript ساخته خواهد شد -->
+        </div>
+    </div>
+    
+    <!-- مودال مقاله کامل -->
+    <div id="articleModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalArticleTitle">عنوان مقاله</h2>
+                <button class="modal-close" onclick="closeArticleModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="article-full-content" id="modalArticleContent">
+                <!-- محتوای مقاله اینجا نمایش داده می‌شود -->
+            </div>
+            <div class="article-footer">
+                <div class="article-tags" id="modalArticleTags">
+                    <!-- تگ‌های مقاله -->
+                </div>
+                <div class="article-read-time">
+                    <i class="fas fa-clock"></i>
+                    <span id="modalArticleReadTime">5 دقیقه</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // داده‌های ابزارهای ریاضی
+        const mathTools = [
+            {
+                name: 'ماشین حساب',
+                description: 'ماشین حساب پیشرفته با قابلیت‌های علمی و حافظه'
+            },
+            {
+                name: 'تشخیص اعداد اول',
+                description: 'بررسی می‌کند که آیا یک عدد اول است یا خیر'
+            },
+            {
+                name: 'ب م م / ک م م',
+                description: 'بزرگترین مقسوم‌علیه مشترک و کوچکترین مضرب مشترک دو عدد را محاسبه می‌کند'
+            },
+            {
+                name: 'مثلث خیام',
+                description: 'سطرهای مثلث خیام-پاسکال را تولید می‌کند'
+            },
+            {
+                name: 'مسابقه ریاضی',
+                description: 'چالش ۲۰ سوالی ریاضی با تایمر و امتیازدهی (سطح هشتم)'
+            },
+            {
+                name: 'مقالات ریاضی',
+                description: 'مقالات تخصصی و تحقیقاتی در زمینه ریاضیات و محاسبات'
+            },
+            {
+                name: 'هوش مصنوعی ریاضی',
+                description: 'بات هوش مصنوعی برای پاسخ به سوالات و آموزش مفاهیم ریاضی'
+            },
+            {
+                name: 'تاریخچه ریاضیات',
+                description: 'مقالات کامل درباره دانشمندان بزرگ ریاضی و دستاوردهای آن‌ها'
+            },
+            {
+                name: 'تعاریف ریاضی',
+                description: 'تعاریف جامع و کامل از مفاهیم ریاضی پایه‌ای تا پیشرفته'
+            }
+        ];
+
+        // داده‌های مقالات ریاضی کامل
+        const mathArticlesData = [
+            {
+                id: 1,
+                title: "کاربردهای ریاضیات در هوش مصنوعی",
+                description: "بررسی نقش جبر خطی، حسابان و احتمال در توسعه الگوریتم‌های یادگیری ماشین",
+                category: "هوش مصنوعی",
+                difficulty: "پیشرفته",
+                readTime: "15 دقیقه",
+                date: "آذر 1403",
+                icon: "🤖",
+                tags: ["هوش مصنوعی", "یادگیری ماشین", "جبر خطی", "احتمال"],
+                fullContent: `
+                    <h3>مقدمه</h3>
+                    <p>ریاضیات پایه و اساس هوش مصنوعی مدرن را تشکیل می‌دهد. بدون مفاهیم ریاضی، الگوریتم‌های یادگیری ماشین قادر به عملکرد نخواهند بود.</p>
+                    
+                    <h3>جبر خطی در یادگیری ماشین</h3>
+                    <p>جبر خطی قلب تپنده شبکه‌های عصبی است. عملیات ماتریسی و بردارها در لایه‌های مختلف شبکه‌های عصبی کاربرد دارند:</p>
+                    <ul>
+                        <li>ضرب ماتریس برای انتشار رو به جلو</li>
+                        <li>محاسبه گرادیان برای پس‌انتشار</li>
+                        <li>تجزیه مقادیر تکین (SVD) برای کاهش ابعاد</li>
+                    </ul>
+                    
+                    <div class="formula">y = σ(Wx + b)</div>
+                    
+                    <p>در این فرمول، W ماتریس وزن‌ها، x بردار ورودی، b بایاس و σ تابع فعال‌سازی است.</p>
+                    
+                    <h3>حسابان در بهینه‌سازی</h3>
+                    <p>الگوریتم گرادیان کاهشی که پایه بسیاری از روش‌های یادگیری است، بر مشتقات استوار است:</p>
+                    
+                    <div class="formula">θ = θ - α∇J(θ)</div>
+                    
+                    <p>که در آن θ پارامترها، α نرخ یادگیری و ∇J گرادیان تابع هزینه است.</p>
+                    
+                    <h3>احتمال و آمار</h3>
+                    <p>مدل‌های احتمالی مانند شبکه‌های بیزی و الگوریتم‌های نمونه‌برداری بر پایه نظریه احتمال بنا شده‌اند.</p>
+                    
+                    <h3>کاربردهای عملی</h3>
+                    <p>1. تشخیص تصویر با استفاده از کانولوشن (محاسبات ماتریسی)</p>
+                    <p>2. پردازش زبان طبیعی با مدل‌های ترنسفورمر</p>
+                    <p>3. سیستم‌های توصیه‌گر با فاکتورگیری ماتریس</p>
+                `
+            },
+            {
+                id: 2,
+                title: "تاریخچه اعداد مختلط",
+                description: "از کشف اعداد موهومی تا کاربردهای مدرن در مهندسی و فیزیک کوانتومی",
+                category: "تاریخ ریاضی",
+                difficulty: "متوسط",
+                readTime: "12 دقیقه",
+                date: "آبان 1403",
+                icon: "🔢",
+                tags: ["اعداد مختلص", "تاریخ ریاضی", "جبر", "مهندسی"],
+                fullContent: `
+                    <h3>کشف اعداد مختلط</h3>
+                    <p>اولین اشاره به اعداد مختلط به قرن 16 و ریاضیدان ایتالیایی جرولامو کاردانو بازمی‌گردد.</p>
+                    
+                    <h3>تعریف اعداد مختلط</h3>
+                    <p>عدد مختلط به صورت z = a + bi تعریف می‌شود که در آن:</p>
+                    <ul>
+                        <li>a بخش حقیقی</li>
+                        <li>b بخش موهومی</li>
+                        <li>i واحد موهومی با ویژگی i² = -1</li>
+                    </ul>
+                    
+                    <div class="formula">i = √(-1)</div>
+                    
+                    <h3>نمایش هندسی</h3>
+                    <p>اعداد مختلط را می‌توان روی صفحه مختلط نمایش داد:</p>
+                    <ul>
+                        <li>محور x: بخش حقیقی</li>
+                        <li>محور y: بخش موهومی</li>
+                    </ul>
+                    
+                    <h3>کاربردها</h3>
+                    <p>1. مهندسی برق: تحلیل مدارهای AC</p>
+                    <p>2. فیزیک کوانتوم: تابع موج</p>
+                    <p>3. پردازش سیگنال: تبدیل فوریه</p>
+                    <p>4. گرافیک کامپیوتری: چرخش و مقیاس</p>
+                `
+            },
+            {
+                id: 3,
+                title: "نظریه آشوب و سیستم‌های دینامیکی",
+                description: "آشوب در سیستم‌های ساده و اثر پروانه‌ای در مدل‌های ریاضی",
+                category: "ریاضیات محض",
+                difficulty: "پیشرفته",
+                readTime: "18 دقیقه",
+                date: "مهر 1403",
+                icon: "🌀",
+                tags: ["نظریه آشوب", "سیستم‌های دینامیکی", "ریاضیات محض", "فیزیک"],
+                fullContent: `
+                    <h3>مقدمه</h3>
+                    <p>نظریه آشوب مطالعه سیستم‌های دینامیکی غیرخطی است که نسبت به شرایط اولیه حساس هستند.</p>
+                    
+                    <h3>اثر پروانه‌ای</h3>
+                    <p>اصطلاحی که ادوارد لورنز معرفی کرد: "بال زدن پروانه‌ای در برزیل می‌تواند باعث توفانی در تگزاس شود"</p>
+                    
+                    <h3جاذب لورنز</h3>
+                    <p>مدل ساده‌ای از جابجایی اتمسفر:</p>
+                    
+                    <div class="formula">
+                        dx/dt = σ(y - x)<br>
+                        dy/dt = x(ρ - z) - y<br>
+                        dz/dt = xy - βz
+                    </div>
+                    
+                    <h3>فرکتال‌ها و بعد کسری</h3>
+                    <p>بسیاری از سیستم‌های آشوبی ساختار فرکتالی دارند:</p>
+                    <ul>
+                        <li>مجموعه مندلبروت</li>
+                        <li>فرکتال جولیا</li>
+                        <li>درخت فیبوناچی</li>
+                    </ul>
+                    
+                    <h3>کاربردها</h3>
+                    <p>1. هواشناسی</p>
+                    <p>2. اقتصاد و بازارهای مالی</p>
+                    <p>3. زیست‌شناسی جمعیت</p>
+                    <p>4. پزشکی (نظریه ECG)</p>
+                `
+            },
+            {
+                id: 4,
+                title: "رمزنگاری و اعداد اول",
+                description: "چگونه اعداد اول امنیت ارتباطات دیجیتال را تضمین می‌کنند",
+                category: "ریاضیات کاربردی",
+                difficulty: "متوسط",
+                readTime: "10 دقیقه",
+                date: "شهریور 1403",
+                icon: "🔐",
+                tags: ["رمزنگاری", "اعداد اول", "امنیت", "الگوریتم"],
+                fullContent: `
+                    <h3>مقدمه</h3>
+                    <p>اعداد اول سنگ بنای رمزنگاری مدرن هستند. امنیت بسیاری از پروتکل‌های ارتباطی به سختی فاکتورگیری اعداد بزرگ وابسته است.</p>
+                    
+                    <h3>الگوریتم RSA</h3>
+                    <p>مشهورترین الگوریتم رمزنگاری کلید عمومی که در سال 1977 اختراع شد:</p>
+                    
+                    <h4>مراحل RSA:</h4>
+                    <ol>
+                        <li>انتخاب دو عدد اول بزرگ p و q</li>
+                        <li>محاسبه n = p × q</li>
+                        <li>محاسبه φ(n) = (p-1)(q-1)</li>
+                        <li>انتخاب e به طوری که 1 < e < φ(n) و gcd(e, φ(n)) = 1</li>
+                        <li>یافتن d به طوری که e × d ≡ 1 (mod φ(n))</li>
+                    </ol>
+                    
+                    <div class="formula">کلید عمومی: (e, n)<br>کلید خصوصی: (d, n)</div>
+                    
+                    <h3>رمزگذاری و رمزگشایی</h3>
+                    <p>رمزگذاری: C ≡ M^e (mod n)</p>
+                    <p>رمزگشایی: M ≡ C^d (mod n)</p>
+                    
+                    <h3>چرا اعداد اول بزرگ؟</h3>
+                    <ul>
+                        <li>فاکتورگیری اعداد 2048 بیتی با فناوری امروز غیرعملی است</li>
+                        <li>حداقل 10^14 سال زمان نیاز دارد</li>
+                        <li>با کامپیوترهای کوانتومی این وضعیت تغییر می‌کند</li>
+                    </ul>
+                `
+            },
+            {
+                id: 5,
+                title: "هندسه فراکتال در طبیعت",
+                description: "از دانه‌های برف تا کهکشان‌ها: الگوهای فراکتال در جهان",
+                category: "هندسه",
+                difficulty: "مقدماتی",
+                readTime: "8 دقیقه",
+                date: "مرداد 1403",
+                icon: "❄️",
+                tags: ["فراکتال", "هندسه", "طبیعت", "الگو"],
+                fullContent: `
+                    <h3>تعریف فراکتال</h3>
+                    <p>فراکتال ساختاری هندسی است که در مقیاس‌های مختلف خودشکنی نشان می‌دهد.</p>
+                    
+                    <h3>ویژگی‌های فراکتال‌ها</h3>
+                    <ul>
+                        <li>خودشکنی (Self-similarity)</li>
+                        <li>بعد کسری (Fractal dimension)</li>
+                        <li>تشکیل از طریق تکرار</li>
+                    </ul>
+                    
+                    <h3>فرکتال‌های مشهور</h3>
+                    <p>1. مجموعه مندلبروت</p>
+                    <div class="formula">z_{n+1} = z_n² + c</div>
+                    
+                    <p>2. مثلث سرپینسکی</p>
+                    <p>3> منحنی کخ (دانه برف)</p>
+                    
+                    <h3>فرکتال‌ها در طبیعت</h3>
+                    <ul>
+                        <li>شاخه‌های درختان</li>
+                        <li>سیاهرگ‌ها و سرخرگ‌ها</li>
+                        <li>خطوط ساحلی</li>
+                        <li>ابرها</li>
+                        <li>صاعقه</li>
+                        <li>کلم بروکلی رومانسکو</li>
+                    </ul>
+                    
+                    <h3>کاربردها</h3>
+                    <p>1. گرافیک کامپیوتری</p>
+                    <p>2. فشرده‌سازی تصویر</p>
+                    <p>3> آنتن‌های فرکتالی</p>
+                    <p>4. زمین‌شناسی و تحلیل زمین‌لرزه</p>
+                `
+            },
+            {
+                id: 6,
+                title: "معادلات دیفرانسیل و مدل‌سازی",
+                description: "کاربرد معادلات دیفرانسیل در مدل‌سازی پدیده‌های طبیعی",
+                category: "ریاضیات کاربردی",
+                difficulty: "متوسط",
+                readTime: "14 دقیقه",
+                date: "تیر 1403",
+                icon: "📈",
+                tags: ["معادلات دیفرانسیل", "مدل‌سازی", "فیزیک", "مهندسی"],
+                fullContent: `
+                    <h3>مقدمه</h3>
+                    <p>معادلات دیفرانسیل زبان توصیف تغییرات در علوم طبیعی و مهندسی هستند.</p>
+                    
+                    <h3>انواع معادلات دیفرانسیل</h3>
+                    <ul>
+                        <li>معادلات دیفرانسیل معمولی (ODE)</li>
+                        <li>معادلات دیفرانسیل جزئی (PDE)</li>
+                        <li>معادلات دیفرانسیل خطی و غیرخطی</li>
+                    </ul>
+                    
+                    <h3>مدل‌های معروف</h3>
+                    
+                    <h4>1. مدل رشد جمعیت (مدل مالتوس)</h4>
+                    <div class="formula">dP/dt = kP</div>
+                    
+                    <h4>2. مدل رشد لجستیک</h4>
+                    <div class="formula">dP/dt = kP(1 - P/K)</div>
+                    
+                    <h4>3. معادله نوسان‌گر هماهنگ</h4>
+                    <div class="formula">m d²x/dt² + c dx/dt + kx = 0</div>
+                    
+                    <h4>4. معادله انتشار گرما</h4>
+                    <div class="formula">∂u/∂t = α ∇²u</div>
+                    
+                    <h3>روش‌های حل</h3>
+                    <ul>
+                        <li>جداکردن متغیرها</li>
+                        <li>ضرایب نامعین</li>
+                        <li>تبدیل لاپلاس</li>
+                        <li>روش‌های عددی (اویلر، رانگ-کوتا)</li>
+                    </ul>
+                    
+                    <h3>کاربردها</h3>
+                    <p>1. مکانیک سماوی (حرکت سیارات)</p>
+                    <p>2. دینامیک سیالات</p>
+                    <p>3. مدارهای الکتریکی</p>
+                    <p>4. فارماکوکینتیک (مدل‌سازی دارو در بدن)</p>
+                `
+            }
+        ];
+
+        // کتابخانه ریاضی
+        const mathLibrary = [
+            {
+                category: "مفاهیم پایه",
+                items: [
+                    { title: "جبر مقدماتی", icon: "α", description: "اصول اولیه جبر و معادلات" },
+                    { title: "هندسه اقلیدسی", icon: "△", description: "مثلثات و هندسه مسطحه" },
+                    { title: "مثلثات", icon: "θ", description: "توابع مثلثاتی و کاربردها" }
+                ]
+            },
+            {
+                category: "ریاضیات پیشرفته",
+                items: [
+                    { title: "حسابان", icon: "∫", description: "مشتق و انتگرال" },
+                    { title: "جبر خطی", icon: "⟦⟧", description: "ماتریس و بردارها" },
+                    { title: "آنالیز عددی", icon: "#", description: "روش‌های عددی حل مسائل" }
+                ]
+            },
+            {
+                category: "کاربردها",
+                items: [
+                    { title: "ریاضیات مالی", icon: "💹", description: "کاربرد ریاضی در اقتصاد" },
+                    { title: "ریاضیات زیستی", icon: "🧬", description: "مدل‌سازی سیستم‌های زیستی" },
+                    { title: "ریاضیات کامپیوتر", icon: "💻", description: "الگوریتم و پیچیدگی" }
+                ]
+            }
+        ];
+
+        const tabsContainer = document.getElementById('tabsContainer');
+        const tabContents = document.getElementById('tabContents');
+        let currentArticlePage = 0;
+        const articlesPerPage = 6;
+        let currentFilter = 'all';
+
+        // ایجاد تب‌ها و محتوای آنها
+        mathTools.forEach((tool, index) => {
+            const tab = document.createElement('button');
+            tab.className = 'tab' + (index === 0 ? ' active' : '');
+            tab.textContent = tool.name;
+            tab.setAttribute('aria-selected', index === 0);
+            tab.onclick = () => switchTab(index);
+            tabsContainer.appendChild(tab);
+
+            const content = document.createElement('div');
+            content.className = 'tab-content' + (index === 0 ? ' active' : '');
+            content.id = 'tab' + index;
+            content.setAttribute('aria-labelledby', 'tab' + index);
+            content.innerHTML = `
+                <div class="tool-description">
+                    <h3>${tool.name}</h3>
+                    <p>${tool.description}</p>
+                </div>
+                ${createToolContent(tool.name, index)}
+            `;
+            tabContents.appendChild(content);
+        });
+
+        // تابع تغییر تب
+        function switchTab(index) {
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+                tab.setAttribute('aria-selected', i === index);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+            
+            // بارگذاری محتوای مقالات اگر تب مقالات است
+            if (mathTools[index].name === 'مقالات ریاضی') {
+                setTimeout(() => {
+                    loadArticlesContent(index);
+                }, 100);
+            }
+        }
+
+        // تابع ایجاد محتوای ابزارها
+        function createToolContent(toolName, index) {
+            if (toolName === 'مقالات ریاضی') {
+                return `
+                    <div class="articles-section">
+                        <!-- جستجوی مقالات -->
+                        <div class="articles-search">
+                            <input type="text" class="search-input" id="searchInput${index}" 
+                                   placeholder="جستجو در مقالات..." onkeyup="searchArticles(${index})">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        
+                        <!-- فیلتر مقالات -->
+                        <div class="articles-filter">
+                            <button class="filter-btn active" onclick="filterArticles(${index}, 'all')">همه مقالات</button>
+                            <button class="filter-btn" onclick="filterArticles(${index}, 'هوش مصنوعی')">هوش مصنوعی</button>
+                            <button class="filter-btn" onclick="filterArticles(${index}, 'تاریخ ریاضی')">تاریخ ریاضی</button>
+                            <button class="filter-btn" onclick="filterArticles(${index}, 'ریاضیات محض')">ریاضیات محض</button>
+                            <button class="filter-btn" onclick="filterArticles(${index}, 'ریاضیات کاربردی')">کاربردی</button>
+                            <button class="filter-btn" onclick="filterArticles(${index}, 'هندسه')">هندسه</button>
+                        </div>
+                        
+                        <!-- لیست مقالات -->
+                        <div class="articles-container" id="articlesContainer${index}">
+                            <!-- مقالات با JavaScript لود می‌شوند -->
+                        </div>
+                        
+                        <!-- ناوبری -->
+                        <div class="articles-navigation" id="articlesNav${index}" style="display: none;">
+                            <button class="nav-btn" onclick="prevArticlesPage(${index})" id="prevBtn${index}">
+                                <i class="fas fa-chevron-right"></i> مقالات قبلی
+                            </button>
+                            <div id="pageInfo${index}">صفحه 1 از 1</div>
+                            <button class="nav-btn" onclick="nextArticlesPage(${index})" id="nextBtn${index}">
+                                مقالات بعدی <i class="fas fa-chevron-left"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- کتابخانه ریاضی -->
+                        <div class="articles-library">
+                            <div class="library-section">
+                                <h3>📚 کتابخانه ریاضی</h3>
+                                <div class="library-grid" id="mathLibrary${index}">
+                                    <!-- کتابخانه با JavaScript لود می‌شود -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // برای سایر تب‌ها محتوای ساده
+            return `
+                <div style="text-align: center; padding: 50px;">
+                    <i class="fas fa-tools" style="font-size: 3em; color: var(--accent); margin-bottom: 20px;"></i>
+                    <h3 style="color: var(--accent); margin-bottom: 15px;">${toolName}</h3>
+                    <p>این بخش در حال توسعه است. برای دسترسی به مقالات، روی تب "مقالات ریاضی" کلیک کنید.</p>
+                    <button onclick="switchTab(${mathTools.findIndex(t => t.name === 'مقالات ریاضی')})" 
+                            style="background: var(--gradient-primary); color: white; padding: 10px 20px; border: none; border-radius: var(--border-radius); margin-top: 20px; cursor: pointer;">
+                        برو به مقالات ریاضی
+                    </button>
+                </div>
+            `;
+        }
+
+        // بارگذاری محتوای مقالات
+        function loadArticlesContent(tabIndex) {
+            // لود مقالات
+            displayArticles(tabIndex);
+            
+            // لود کتابخانه
+            loadMathLibrary(tabIndex);
+            
+            // تنظیم جستجو
+            const searchInput = document.getElementById(`searchInput${tabIndex}`);
+            if (searchInput) {
+                searchInput.value = '';
+            }
+        }
+
+        // نمایش مقالات
+        function displayArticles(tabIndex) {
+            const container = document.getElementById(`articlesContainer${tabIndex}`);
+            if (!container) return;
+            
+            // فیلتر کردن مقالات
+            let filteredArticles = mathArticlesData;
+            if (currentFilter !== 'all') {
+                filteredArticles = mathArticlesData.filter(article => 
+                    article.category === currentFilter || 
+                    article.tags.includes(currentFilter)
+                );
+            }
+            
+            // محاسبه صفحات
+            const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+            const startIndex = currentArticlePage * articlesPerPage;
+            const endIndex = startIndex + articlesPerPage;
+            const currentArticles = filteredArticles.slice(startIndex, endIndex);
+            
+            // نمایش مقالات
+            container.innerHTML = '';
+            
+            if (currentArticles.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--gray);">
+                        <i class="fas fa-search" style="font-size: 3em; margin-bottom: 20px;"></i>
+                        <h3>مقاله‌ای یافت نشد</h3>
+                        <p>مقاله‌ای با مشخصات جستجو شده وجود ندارد.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            currentArticles.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'article-card';
+                articleCard.onclick = () => openArticleModal(article);
+                articleCard.innerHTML = `
+                    <div class="article-icon">${article.icon}</div>
+                    <h4>${article.title}</h4>
+                    <div class="article-meta">
+                        <span class="article-tag">${article.category}</span>
+                        <span>${article.date}</span>
+                    </div>
+                    <div class="article-preview">${article.description}</div>
+                    <div class="article-meta">
+                        <span>${article.difficulty}</span>
+                        <div class="article-read-time">
+                            <i class="fas fa-clock"></i>
+                            <span>${article.readTime}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(articleCard);
+            });
+            
+            // نمایش ناوبری اگر نیاز باشد
+            const nav = document.getElementById(`articlesNav${tabIndex}`);
+            const prevBtn = document.getElementById(`prevBtn${tabIndex}`);
+            const nextBtn = document.getElementById(`nextBtn${tabIndex}`);
+            const pageInfo = document.getElementById(`pageInfo${tabIndex}`);
+            
+            if (filteredArticles.length > articlesPerPage) {
+                nav.style.display = 'flex';
+                prevBtn.disabled = currentArticlePage === 0;
+                nextBtn.disabled = endIndex >= filteredArticles.length;
+                pageInfo.textContent = `صفحه ${currentArticlePage + 1} از ${totalPages}`;
+            } else {
+                nav.style.display = 'none';
+            }
+        }
+
+        // فیلتر مقالات
+        function filterArticles(tabIndex, filter) {
+            currentFilter = filter;
+            currentArticlePage = 0;
+            
+            // آپدیت دکمه‌های فعال
+            document.querySelectorAll(`#tab${tabIndex} .filter-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayArticles(tabIndex);
+        }
+
+        // جستجوی مقالات
+        function searchArticles(tabIndex) {
+            const searchTerm = document.getElementById(`searchInput${tabIndex}`).value.toLowerCase();
+            currentArticlePage = 0;
+            
+            if (searchTerm.trim() === '') {
+                currentFilter = 'all';
+                document.querySelectorAll(`#tab${tabIndex} .filter-btn`).forEach(btn => {
+                    btn.classList.toggle('active', btn.textContent === 'همه مقالات');
+                });
+                displayArticles(tabIndex);
+                return;
+            }
+            
+            // فیلتر بر اساس جستجو
+            const filteredArticles = mathArticlesData.filter(article => 
+                article.title.toLowerCase().includes(searchTerm) ||
+                article.description.toLowerCase().includes(searchTerm) ||
+                article.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+                article.category.toLowerCase().includes(searchTerm)
+            );
+            
+            const container = document.getElementById(`articlesContainer${tabIndex}`);
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (filteredArticles.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--gray);">
+                        <i class="fas fa-search" style="font-size: 3em; margin-bottom: 20px;"></i>
+                        <h3>مقاله‌ای یافت نشد</h3>
+                        <p>هیچ مقاله‌ای با عبارت "${searchTerm}" پیدا نشد.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredArticles.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'article-card';
+                articleCard.onclick = () => openArticleModal(article);
+                articleCard.innerHTML = `
+                    <div class="article-icon">${article.icon}</div>
+                    <h4>${article.title}</h4>
+                    <div class="article-meta">
+                        <span class="article-tag">${article.category}</span>
+                        <span>${article.date}</span>
+                    </div>
+                    <div class="article-preview">${article.description}</div>
+                    <div class="article-meta">
+                        <span>${article.difficulty}</span>
+                        <div class="article-read-time">
+                            <i class="fas fa-clock"></i>
+                            <span>${article.readTime}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(articleCard);
+            });
+            
+            // مخفی کردن ناوبری
+            document.getElementById(`articlesNav${tabIndex}`).style.display = 'none';
+        }
+
+        // ناوبری صفحات
+        function nextArticlesPage(tabIndex) {
+            const totalArticles = currentFilter === 'all' ? 
+                mathArticlesData.length : 
+                mathArticlesData.filter(a => a.category === currentFilter || a.tags.includes(currentFilter)).length;
+            
+            if ((currentArticlePage + 1) * articlesPerPage < totalArticles) {
+                currentArticlePage++;
+                displayArticles(tabIndex);
+            }
+        }
+
+        function prevArticlesPage(tabIndex) {
+            if (currentArticlePage > 0) {
+                currentArticlePage--;
+                displayArticles(tabIndex);
+            }
+        }
+
+        // لود کتابخانه ریاضی
+        function loadMathLibrary(tabIndex) {
+            const container = document.getElementById(`mathLibrary${tabIndex}`);
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            mathLibrary.forEach(section => {
+                section.items.forEach(item => {
+                    const libraryItem = document.createElement('div');
+                    libraryItem.className = 'library-item';
+                    libraryItem.onclick = () => {
+                        alert(`بخش "${item.title}" در حال توسعه است. به زودی مقالات مرتبط اضافه می‌شوند.`);
+                    };
+                    libraryItem.innerHTML = `
+                        <div class="library-icon">${item.icon}</div>
+                        <h4>${item.title}</h4>
+                        <p>${item.description}</p>
+                    `;
+                    container.appendChild(libraryItem);
+                });
+            });
+        }
+
+        // باز کردن مودال مقاله
+        function openArticleModal(article) {
+            document.getElementById('modalArticleTitle').textContent = article.title;
+            document.getElementById('modalArticleContent').innerHTML = article.fullContent;
+            document.getElementById('modalArticleReadTime').textContent = article.readTime;
+            
+            // نمایش تگ‌ها
+            const tagsContainer = document.getElementById('modalArticleTags');
+            tagsContainer.innerHTML = '';
+            article.tags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'tag';
+                tagElement.textContent = tag;
+                tagsContainer.appendChild(tagElement);
+            });
+            
+            // نمایش مودال
+            document.getElementById('articleModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // بستن مودال مقاله
+        function closeArticleModal() {
+            document.getElementById('articleModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // بستن مودال با کلیک خارج از آن
+        document.getElementById('articleModal').onclick = function(e) {
+            if (e.target === this) {
+                closeArticleModal();
+            }
+        };
+
+        // بارگذاری اولیه
+        window.onload = function() {
+            // بارگذاری مقالات در تب مقالات (اگر تب اول نیست)
+            const articlesTabIndex = mathTools.findIndex(t => t.name === 'مقالات ریاضی');
+            if (articlesTabIndex !== -1) {
+                setTimeout(() => {
+                    loadArticlesContent(articlesTabIndex);
+                }, 100);
+            }
+        };
+    </script>
+</body>
+</html>

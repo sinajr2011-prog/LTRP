@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نتایج آزمون - ققنوس ادب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .result-container { max-width: 1200px; margin: 0 auto; }
+        .result-header { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 25px; margin-bottom: 30px; text-align: center; }
+        .result-title { color: #2c3e50; font-size: 1.8rem; margin-bottom: 10px; }
+        .summary-card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 25px; margin-bottom: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; }
+        .summary-item { text-align: center; padding: 20px; background: #f8f9fa; border-radius: 20px; }
+        .summary-value { font-size: 2rem; font-weight: bold; color: #3498db; }
+        .encouragement { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 25px; margin-bottom: 30px; text-align: center; }
+        .encouragement-text { font-size: 1.5rem; color: #2c3e50; margin-bottom: 10px; }
+        .details-container { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 25px; margin-bottom: 30px; }
+        .question-item { display: flex; gap: 20px; padding: 20px; border: 2px solid #ecf0f1; border-radius: 15px; margin-bottom: 15px; }
+        .question-number { width: 50px; height: 50px; background: #3498db; color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .question-number.correct { background: #27ae60; }
+        .question-number.incorrect { background: #e74c3c; }
+        .question-content { flex: 1; }
+        .result-footer { background: rgba(255,255,255,0.95); padding: 25px; border-radius: 25px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
+        .btn-secondary { background: linear-gradient(45deg, #27ae60, #219a52); color: white; }
+        .btn-warning { background: linear-gradient(45deg, #f39c12, #e67e22); color: white; }
+        .btn:hover { transform: translateY(-2px); }
+        @media (max-width:768px){ .summary-card { grid-template-columns: 1fr; } .question-item { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <div class="result-header">
+            <h1 class="result-title" id="resultTitle">📊 در حال بارگذاری...</h1>
+            <p id="resultSubtitle">لطفاً چند لحظه صبر کنید</p>
+        </div>
+
+        <div class="summary-card" id="summaryCard">
+            <div class="summary-item"><div class="summary-value" id="scoreValue">0</div><div>نمره کسب شده</div></div>
+            <div class="summary-item"><div class="summary-value" id="totalQuestions">0</div><div>تعداد سوالات</div></div>
+            <div class="summary-item"><div class="summary-value" id="correctAnswers">0</div><div>پاسخ صحیح</div></div>
+            <div class="summary-item"><div class="summary-value" id="percentageValue">0%</div><div>درصد موفقیت</div></div>
+        </div>
+
+        <div class="encouragement" id="encouragementMsg">
+            <div class="encouragement-text" id="encouragementText">در حال محاسبه...</div>
+        </div>
+
+        <div class="details-container">
+            <h3 style="margin-bottom: 20px;"> (ابتدا وارد پنل "مرور آزمون" شوید تا داده ها ارسال شوند...)📋 جزئیات پاسخ‌ها</h3>
+            <div id="questionsList"></div>
+        </div>
+
+        <div class="result-footer">
+            <div class="action-buttons" style="display: flex; gap: 15px;">
+                <button class="btn btn-warning" onclick="reviewExam()"><i class="fas fa-redo"></i> مرور آزمون</button>
+                <button class="btn btn-primary" onclick="goToDashboard()"><i class="fas fa-home"></i> بازگشت به داشبورد</button>
+                <button class="btn btn-secondary" onclick="printResult()"><i class="fas fa-print"></i> چاپ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://ltrp.ir/backend';
+        let examData = null;
+        let examResult = null;
+        let examId = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            examId = urlParams.get('examId');
+            const score = urlParams.get('score');
+            const total = urlParams.get('total');
+            const percentage = urlParams.get('percentage');
+
+            await loadStudentInfo();
+            
+            if (examId && score !== null) {
+                await loadExamFromAPI(examId);
+                displayResultsFromParams(parseInt(score), parseInt(total), parseInt(percentage));
+            } else {
+                await loadExamFromAPI(examId);
+                await loadResultFromAPI();
+                displayResults();
+            }
+        });
+
+        async function loadStudentInfo() {
+            const saved = localStorage.getItem('currentStudent');
+            if (!saved) {
+                window.location.href = 'student-login.html';
+                return;
+            }
+            window.currentStudent = JSON.parse(saved);
+        }
+
+        async function loadExamFromAPI(id) {
+            try {
+                const response = await fetch(`${API_URL}/api.php?action=get_exam`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ exam_id: id })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    examData = data.exam;
+                } else {
+                    const localExams = JSON.parse(localStorage.getItem('exams')) || [];
+                    examData = localExams.find(e => e.id == id);
+                }
+                if (!examData) {
+                    document.getElementById('resultTitle').textContent = '❌ آزمون یافت نشد';
+                }
+            } catch(e) {
+                console.error('Error loading exam:', e);
+                const localExams = JSON.parse(localStorage.getItem('exams')) || [];
+                examData = localExams.find(e => e.id == id);
+            }
+        }
+
+        async function loadResultFromAPI() {
+            try {
+                const studentCode = window.currentStudent.national_code || window.currentStudent.nationalCode;
+                const response = await fetch(`${API_URL}/api.php?action=get_results`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_national_code: studentCode })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    examResult = data.results.find(r => r.exam_id == examId);
+                }
+                if (!examResult) {
+                    document.getElementById('resultTitle').textContent = '❌ نتیجه‌ای یافت نشد';
+                }
+            } catch(e) {
+                console.error('Error loading result:', e);
+                const localResults = JSON.parse(localStorage.getItem('examResults')) || [];
+                examResult = localResults.find(r => r.exam_id == examId);
+            }
+        }
+
+        function displayResultsFromParams(score, total, percentage) {
+            document.getElementById('resultTitle').textContent = `📊 نتایج آزمون: ${examData?.title || 'آزمون'}`;
+            document.getElementById('scoreValue').textContent = `${score}/${total}`;
+            document.getElementById('totalQuestions').textContent = total;
+            document.getElementById('correctAnswers').textContent = score;
+            document.getElementById('percentageValue').textContent = `${percentage}%`;
+            
+            let msg = percentage >= 80 ? '🎉 عالی! عملکرد فوق‌العاده‌ای داشتید!' :
+                      percentage >= 60 ? '👍 خوب! با کمی تمرین بهتر می‌شوید' :
+                      percentage >= 40 ? '📚 قابل قبول! نیاز به مطالعه بیشتر دارید' :
+                      '💪 نیاز به تلاش بیشتر! ناامید نشوید';
+            document.getElementById('encouragementText').textContent = msg;
+            
+            if (examData?.questions) {
+                displayQuestions(examData.questions, null);
+            }
+        }
+
+        function displayResults() {
+            if (!examResult || !examData) return;
+            
+            const score = examResult.score;
+            const total = examResult.total_score;
+            const percentage = examResult.percentage;
+            
+            document.getElementById('resultTitle').textContent = `📊 نتایج آزمون: ${examData.title}`;
+            document.getElementById('scoreValue').textContent = `${score}/${total}`;
+            document.getElementById('totalQuestions').textContent = total;
+            document.getElementById('correctAnswers').textContent = score;
+            document.getElementById('percentageValue').textContent = `${percentage}%`;
+            
+            let msg = percentage >= 80 ? '🎉 عالی! عملکرد فوق‌العاده‌ای داشتید!' :
+                      percentage >= 60 ? '👍 خوب! با کمی تمرین بهتر می‌شوید' :
+                      percentage >= 40 ? '📚 قابل قبول! نیاز به مطالعه بیشتر دارید' :
+                      '💪 نیاز به تلاش بیشتر! ناامید نشوید';
+            document.getElementById('encouragementText').textContent = msg;
+            
+            let answers = [];
+            if (examResult.answers) {
+                answers = typeof examResult.answers === 'string' ? 
+                    JSON.parse(examResult.answers) : examResult.answers;
+            }
+            displayQuestions(examData.questions, answers);
+        }
+
+        function displayQuestions(questions, answers) {
+            const container = document.getElementById('questionsList');
+            container.innerHTML = '';
+            const letters = ['الف', 'ب', 'ج', 'د'];
+            
+            questions.forEach((q, idx) => {
+                const userAnswer = answers ? answers[idx] : null;
+                const isCorrect = (userAnswer === q.correctAnswer);
+                const isAnswered = (userAnswer !== null && userAnswer !== undefined);
+                
+                const div = document.createElement('div');
+                div.className = 'question-item';
+                
+                let statusClass = 'incorrect';
+                let statusIcon = '❌';
+                if (!isAnswered) {
+                    statusClass = 'incorrect';
+                    statusIcon = '⚠️';
+                } else if (isCorrect) {
+                    statusClass = 'correct';
+                    statusIcon = '✅';
+                }
+                
+                div.innerHTML = `
+                    <div class="question-number ${statusClass}">${idx + 1}</div>
+                    <div class="question-content">
+                        <div style="font-weight: bold; margin-bottom: 10px;">${q.text}</div>
+                        <div style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 8px;">
+                            ${statusIcon} ${isAnswered ? (isCorrect ? 'پاسخ شما صحیح است' : 'پاسخ شما نادرست است') : 'پاسخ نداده‌اید'}
+                        </div>
+                        <div style="font-size: 0.9rem;"><strong>پاسخ صحیح:</strong> ${letters[q.correctAnswer]}) ${q.options[q.correctAnswer]}</div>
+                        ${isAnswered && !isCorrect ? `<div style="font-size: 0.9rem; color: #e74c3c;"><strong>پاسخ شما:</strong> ${letters[userAnswer]}) ${q.options[userAnswer]}</div>` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function reviewExam() {
+            if (examData) window.location.href = `exam-review.html?examId=${examData.id}`;
+            else alert('امکان مرور وجود ندارد');
+        }
+
+        function goToDashboard() { window.location.href = 'student-dashboard.html'; } 
+        function printResult() { window.print(); }
+    </script>
+</body>
+</html>

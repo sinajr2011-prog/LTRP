@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود دانش‌آموز | ققنوس ادب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-container { background: rgba(255,255,255,0.95); border-radius: 30px; padding: 40px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .login-icon i { font-size: 36px; color: white; }
+        .login-header h2 { color: #2c3e50; margin-bottom: 10px; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; color: #2c3e50; font-weight: bold; }
+        input { width: 100%; padding: 15px; border: 2px solid #ecf0f1; border-radius: 15px; font-size: 16px; background: white; }
+        input:focus { outline: none; border-color: #667eea; }
+        .login-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 16px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; transition: all 0.3s; }
+        .login-btn:hover { transform: translateY(-2px); }
+        .error-message { color: #e74c3c; text-align: center; margin-top: 15px; padding: 10px; border-radius: 8px; background: rgba(231,76,60,0.1); }
+        .success-message { color: #27ae60; text-align: center; margin-top: 15px; padding: 10px; border-radius: 8px; background: rgba(39,174,96,0.1); }
+        .info-box { background: #f0f4ff; border-radius: 10px; padding: 12px; margin-bottom: 20px; border-right: 3px solid #667eea; font-size: 12px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-icon"><i class="fas fa-graduation-cap"></i></div>
+            <h2>ورود دانش‌آموز</h2>
+            <p>کد مدرسه + کد ملی + رمز عبور</p>
+        </div>
+        <div class="info-box"><i class="fas fa-school"></i> کد مدرسه را از مدرسه خود دریافت کنید</div>
+        <form id="loginForm">
+            <div class="form-group"><label>🏫 کد مدرسه</label><input type="text" id="schoolCode" placeholder="مثال: ghoghnos" required></div>
+            <div class="form-group"><label>📇 کد ملی</label><input type="text" id="nationalCode" maxlength="10" placeholder="۱۰ رقم کد ملی" required></div>
+            <div class="form-group"><label>🔐 رمز عبور</label><input type="password" id="password" placeholder="رمز عبور" required></div>
+            <button type="submit" class="login-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> ورود</button>
+            <div id="message"></div>
+        </form>
+    </div>
+
+    <script>
+        const API_URL = 'https://ltrp.ir/backend';
+
+        document.getElementById('nationalCode').addEventListener('input', function() { 
+            this.value = this.value.replace(/[^0-9]/g, ''); 
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const schoolCode = document.getElementById('schoolCode').value.trim();
+            const nationalCode = document.getElementById('nationalCode').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (!schoolCode || !nationalCode || !password) {
+                messageDiv.innerHTML = '<div class="error-message">❌ لطفاً همه فیلدها را پر کنید</div>';
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال بررسی...';
+            
+            // درخواست لاگین
+            const requestData = {
+                identifier: nationalCode,
+                password: password,
+                role: 'student',
+                school_code: schoolCode
+            };
+            
+            console.log('📤 ارسال درخواست:', requestData);
+            
+            try {
+                const response = await fetch(`${API_URL}/api.php?action=login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                console.log('📥 پاسخ:', data);
+                
+                if (data.success) {
+                    localStorage.setItem('currentStudent', JSON.stringify(data.user));
+                    messageDiv.innerHTML = '<div class="success-message">✅ ورود موفق! در حال انتقال...</div>';
+                    setTimeout(() => { 
+                        window.location.href = 'student-dashboard.html'; 
+                    }, 1000);
+                } else {
+                    messageDiv.innerHTML = `<div class="error-message">❌ ${data.error || 'کد مدرسه، کد ملی یا رمز عبور اشتباه است'}</div>`;
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ورود';
+                }
+            } catch(error) {
+                console.error('❌ خطا:', error);
+                messageDiv.innerHTML = '<div class="error-message">❌ خطا در ارتباط با سرور</div>';
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ورود';
+            }
+        });
+
+        if (localStorage.getItem('currentStudent')) {
+            window.location.href = 'student-dashboard.html';
+        }
+    </script>
+</body>
+</html>

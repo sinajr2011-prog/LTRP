@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مرور آزمون | ققنوس ادب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .review-container { max-width: 1000px; margin: 0 auto; }
+        .review-header { background: rgba(255,255,255,0.95); padding: 25px; border-radius: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
+        .review-score { background: linear-gradient(45deg, #27ae60, #219a52); color: white; padding: 15px 25px; border-radius: 15px; text-align: center; }
+        .progress-container { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 15px; margin-bottom: 25px; }
+        .progress-bar { height: 10px; background: #ecf0f1; border-radius: 5px; overflow: hidden; margin: 15px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(45deg, #3498db, #2980b9); width: 0%; transition: width 0.3s; }
+        .question-nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 15px; }
+        .nav-btn { width: 40px; height: 40px; border: 2px solid #bdc3c7; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; font-weight: bold; transition: all 0.3s; }
+        .nav-btn.current { background: #3498db; color: white; border-color: #3498db; }
+        .nav-btn.correct { background: #27ae60; color: white; border-color: #27ae60; }
+        .nav-btn.incorrect { background: #e74c3c; color: white; border-color: #e74c3c; }
+        .nav-btn.unanswered { background: #95a5a6; color: white; border-color: #95a5a6; }
+        .nav-btn:hover { transform: translateY(-2px); }
+        .question-container { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; margin-bottom: 25px; }
+        .question-text { font-size: 1.2rem; line-height: 1.8; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px; }
+        .option-item { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #ecf0f1; border-radius: 12px; margin-bottom: 12px; background: white; }
+        .option-item.user-answer { border-color: #3498db; background: rgba(52,152,219,0.1); }
+        .option-item.correct-answer { border-color: #27ae60; background: rgba(39,174,96,0.1); }
+        .option-marker { width: 30px; height: 30px; border: 2px solid #bdc3c7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .option-item.user-answer .option-marker { background: #3498db; color: white; border-color: #3498db; }
+        .option-item.correct-answer .option-marker { background: #27ae60; color: white; border-color: #27ae60; }
+        .option-text { flex: 1; }
+        .answer-indicator { margin-right: 10px; }
+        .review-footer { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
+        .btn-secondary { background: linear-gradient(45deg, #27ae60, #219a52); color: white; }
+        .btn-warning { background: linear-gradient(45deg, #f39c12, #e67e22); color: white; }
+        .btn:hover { transform: translateY(-2px); }
+        @media (max-width:768px){ .review-header { flex-direction: column; text-align: center; } .nav-btn { width: 35px; height: 35px; } }
+    </style>
+</head>
+<body>
+    <div class="review-container">
+        <div class="review-header">
+            <div>
+                <h1 id="reviewTitle">📖 در حال بارگذاری...</h1>
+                <p id="reviewMeta"></p>
+            </div>
+            <div class="review-score">
+                <div class="score-text">نمره شما</div>
+                <div class="score-display" id="scoreDisplay">0/0</div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span>پیشرفت مرور</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="question-nav" id="questionNav"></div>
+        </div>
+
+        <div class="question-container">
+            <div class="question-text" id="questionText"></div>
+            <div id="optionsContainer"></div>
+        </div>
+
+        <div class="review-footer">
+            <div>
+                <button class="btn btn-warning" onclick="previousQuestion()"><i class="fas fa-arrow-right"></i> قبلی</button>
+                <button class="btn btn-primary" onclick="nextQuestion()">بعدی <i class="fas fa-arrow-left"></i></button>
+            </div>
+            <button class="btn btn-secondary" onclick="goToResults()"><i class="fas fa-chart-bar"></i> بازگشت به نتایج</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://ltrp.ir/backend';  // خالی برای استفاده از آدرس نسبی
+        let examData = null;
+        let examResult = null;
+        let userAnswers = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const examId = urlParams.get('examId');
+            
+            if (!examId) {
+                alert('شناسه آزمون یافت نشد');
+                window.location.href = 'student-dashboard.html';
+                return;
+            }
+            
+            await loadStudentInfo();
+            await loadExamFromAPI(examId);
+            await loadResultFromAPI(examId);
+            
+            if (examData && examResult) {
+                initializeReview();
+            } else {
+                document.getElementById('reviewTitle').textContent = '❌ اطلاعات آزمون یافت نشد';
+            }
+        });
+
+        async function loadStudentInfo() {
+            const saved = localStorage.getItem('currentStudent');
+            if (!saved) {
+                window.location.href = 'student-login.html';
+                return;
+            }
+            window.currentStudent = JSON.parse(saved);
+        }
+
+        async function loadExamFromAPI(id) {
+            try {
+                // گرفتن از API
+                const response = await fetch(`${API_URL}/api/get_exams.php?id=${id}`);
+                let exams = await response.json();
+                
+                // اگر آرایه بود، پیدا کن
+                if (Array.isArray(exams)) {
+                    examData = exams.find(e => e.id == id);
+                } else {
+                    examData = exams;
+                }
+                
+                // اگه نبود، از localStorage (فال‌بک)
+                if (!examData) {
+                    const localExams = JSON.parse(localStorage.getItem('exams')) || [];
+                    examData = localExams.find(e => e.id == id);
+                }
+            } catch(e) {
+                console.error('Error loading exam:', e);
+                const localExams = JSON.parse(localStorage.getItem('exams')) || [];
+                examData = localExams.find(e => e.id == id);
+            }
+        }
+
+        async function loadResultFromAPI(examId) {
+            try {
+                const studentCode = window.currentStudent.national_code || window.currentStudent.nationalCode;
+                const response = await fetch(`${API_URL}/api/get_results.php?student_national_code=${studentCode}`);
+                const results = await response.json();
+                examResult = results.find(r => r.exam_id == examId);
+                
+                // اگه توی API نبود، از localStorage نتایج رو بگیر (فال‌بک)
+                if (!examResult) {
+                    const localResults = JSON.parse(localStorage.getItem('examResults')) || [];
+                    examResult = localResults.find(r => r.exam_id == examId);
+                }
+                
+                if (examResult && examResult.answers) {
+                    userAnswers = typeof examResult.answers === 'string' ? 
+                        JSON.parse(examResult.answers) : examResult.answers;
+                }
+            } catch(e) {
+                console.error('Error loading result:', e);
+                const localResults = JSON.parse(localStorage.getItem('examResults')) || [];
+                examResult = localResults.find(r => r.exam_id == examId);
+                if (examResult && examResult.answers) {
+                    userAnswers = typeof examResult.answers === 'string' ? 
+                        JSON.parse(examResult.answers) : examResult.answers;
+                }
+            }
+        }
+
+        function initializeReview() {
+            document.getElementById('reviewTitle').textContent = `📖 مرور آزمون: ${examData.title}`;
+            document.getElementById('reviewMeta').innerHTML = `🎯 درس: ${examData.subject} | 📅 تاریخ: ${new Date().toLocaleDateString('fa-IR')}`;
+            document.getElementById('scoreDisplay').textContent = `${examResult.score}/${examResult.total_score}`;
+            
+            createNavigation();
+            loadQuestion(0);
+            updateProgress();
+        }
+
+        function createNavigation() {
+            const nav = document.getElementById('questionNav');
+            nav.innerHTML = '';
+            for (let i = 0; i < examData.questions.length; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.textContent = i + 1;
+                const userAns = userAnswers[i];
+                const isCorrect = (userAns === examData.questions[i].correctAnswer);
+                if (userAns === null || userAns === undefined) btn.classList.add('unanswered');
+                else if (isCorrect) btn.classList.add('correct');
+                else btn.classList.add('incorrect');
+                btn.onclick = () => goToQuestion(i);
+                nav.appendChild(btn);
+            }
+        }
+
+        function loadQuestion(index) {
+            const q = examData.questions[index];
+            const userAnswer = userAnswers[index];
+            const isCorrect = (userAnswer === q.correctAnswer);
+            
+            document.getElementById('questionText').innerHTML = q.text;
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            const letters = ['الف', 'ب', 'ج', 'د'];
+            
+            q.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'option-item';
+                if (idx === userAnswer) div.classList.add('user-answer');
+                if (idx === q.correctAnswer) div.classList.add('correct-answer');
+                
+                div.innerHTML = `
+                    <div class="option-marker">${letters[idx]}</div>
+                    <div class="option-text">${opt}</div>
+                    ${idx === userAnswer ? '<div class="answer-indicator"><i class="fas fa-user"></i> پاسخ شما</div>' : ''}
+                    ${idx === q.correctAnswer ? '<div class="answer-indicator"><i class="fas fa-check-circle"></i> پاسخ صحیح</div>' : ''}
+                `;
+                container.appendChild(div);
+            });
+            
+            updateNavigationHighlight(index);
+        }
+
+        function updateNavigationHighlight(current) {
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach((btn, idx) => {
+                btn.classList.remove('current');
+                if (idx === current) btn.classList.add('current');
+            });
+        }
+
+        function nextQuestion() {
+            if (currentIndex < examData.questions.length - 1) {
+                currentIndex++;
+                loadQuestion(currentIndex);
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadQuestion(currentIndex);
+                updateProgress();
+            }
+        }
+
+        function goToQuestion(index) {
+            currentIndex = index;
+            loadQuestion(currentIndex);
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const percent = ((currentIndex + 1) / examData.questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('progressPercent').textContent = `${Math.round(percent)}%`;
+        }
+
+        function goToResults() {
+            window.location.href = `exam-result.html?examId=${examData.id}`;
+        }
+    </script>
+</body>
+</html>

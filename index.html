@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LTRP | پلتفرم هوشمند مدیریت مدارس</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #b967ff;
+            --neon-pink: #ff2d95;
+            --neon-green: #00ff88;
+            --neon-orange: #ff6b35;
+            --dark-bg: #0a0a1a;
+            --card-bg: rgba(16, 18, 40, 0.85);
+            --gradient-neon: linear-gradient(135deg, #00f3ff 0%, #b967ff 50%, #ff2d95 100%);
+            --gradient-cyber: linear-gradient(135deg, #00ff88 0%, #00f3ff 50%, #b967ff 100%);
+        }
+
+        body {
+            background: var(--dark-bg);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+            line-height: 1.6;
+        }
+
+        /* ===== پس‌زمینه فضایی ===== */
+        .space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(0, 243, 255, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(185, 103, 255, 0.05) 0%, transparent 60%);
+        }
+
+        .space-bg .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== هدر ===== */
+        .epic-header {
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            padding: 50px 40px 40px;
+            border-radius: 30px;
+            margin-bottom: 50px;
+            text-align: center;
+            border: 1px solid rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 60px rgba(0, 243, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .epic-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-neon);
+            animation: neonFlow 3s ease-in-out infinite;
+        }
+
+        .epic-header .logo-icon {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            display: block;
+            animation: floatLogo 4s ease-in-out infinite;
+        }
+
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .epic-header h1 {
+            background: var(--gradient-neon);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .epic-header .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .epic-header .tagline {
+            color: var(--neon-blue);
+            font-size: 1rem;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        /* ===== کارت دانش‌آموز (بزرگ) ===== */
+        .student-section {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 40px;
+        }
+
+        .cyber-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 55px 40px 45px;
+            border-radius: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0, 243, 255, 0.12);
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.06);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .cyber-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-cyber);
+            animation: neonFlow 3s ease-in-out infinite;
+        }
+
+        .cyber-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-cyber);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+        }
+
+        .cyber-card:hover::after {
+            opacity: 0.05;
+        }
+
+        .cyber-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 0 70px rgba(0, 255, 136, 0.15);
+            border-color: rgba(0, 255, 136, 0.25);
+        }
+
+        .cyber-card .icon {
+            font-size: 5rem;
+            margin-bottom: 15px;
+            display: block;
+            position: relative;
+            z-index: 3;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 136, 0.2));
+            transition: all 0.5s ease;
+        }
+
+        .cyber-card:hover .icon {
+            transform: scale(1.1) rotate(-5deg);
+            filter: drop-shadow(0 0 50px rgba(0, 255, 136, 0.4));
+        }
+
+        .cyber-card h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 3;
+        }
+
+        .cyber-card p {
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            font-size: 1rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .cyber-card .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .cyber-card .features span {
+            background: rgba(0, 243, 255, 0.06);
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 243, 255, 0.06);
+        }
+
+        .cyber-btn {
+            background: var(--gradient-cyber);
+            color: white;
+            padding: 16px 50px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
+            position: relative;
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+
+        .cyber-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.25);
+        }
+
+        /* ===== آمار ===== */
+        .cyber-system-info {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 40px 30px;
+            border-radius: 25px;
+            margin-top: 50px;
+            text-align: center;
+            border: 1px solid rgba(0, 243, 255, 0.08);
+            animation: fadeInUp 1s ease-out 0.3s backwards;
+        }
+
+        .cyber-system-info h3 {
+            background: var(--gradient-neon);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        .cyber-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+        }
+
+        .cyber-stat-item {
+            background: rgba(255,255,255,0.02);
+            padding: 20px 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: all 0.3s ease;
+        }
+
+        .cyber-stat-item:hover {
+            background: rgba(0, 243, 255, 0.04);
+            transform: translateY(-3px);
+            border-color: rgba(0, 243, 255, 0.1);
+        }
+
+        .cyber-stat-number {
+            font-size: 2.4rem;
+            font-weight: 900;
+            background: var(--gradient-neon);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 3px;
+        }
+
+        .cyber-stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 400;
+        }
+
+        /* ===== دکمه‌های ریز (معلم + توسعه‌دهنده) ===== */
+        .mini-login-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 25px 0 10px;
+        }
+
+        .mini-login-btn {
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mini-login-btn:hover {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.7);
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .mini-login-btn i {
+            font-size: 0.8rem;
+        }
+
+        .mini-teacher:hover { border-color: rgba(255, 107, 53, 0.2); color: var(--neon-orange); }
+        .mini-developer:hover { border-color: rgba(185, 103, 255, 0.2); color: var(--neon-purple); }
+
+        /* ===== فوتر ===== */
+        .cyber-footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px 20px 15px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .cyber-footer p {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.85rem;
+        }
+
+        .cyber-footer .credit {
+            background: var(--gradient-neon);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 1rem;
+            margin: 5px 0 15px;
+        }
+
+        .cyber-footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cyber-footer-link {
+            color: rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: color 0.3s ease;
+        }
+
+        .cyber-footer-link:hover {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===== انیمیشن‌ها ===== */
+        @keyframes neonFlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== ریسپانسیو ===== */
+        @media (max-width: 768px) {
+            .epic-header {
+                padding: 35px 25px;
+            }
+            .epic-header h1 {
+                font-size: 2.2rem;
+            }
+            .epic-header .logo-icon {
+                font-size: 2.8rem;
+            }
+            .cyber-card {
+                padding: 40px 25px;
+                max-width: 100%;
+            }
+            .cyber-card h3 {
+                font-size: 1.6rem;
+            }
+            .cyber-card .icon {
+                font-size: 4rem;
+            }
+            .cyber-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            .cyber-stat-number {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .epic-header h1 {
+                font-size: 1.6rem;
+            }
+            .cyber-stats {
+                grid-template-columns: 1fr;
+            }
+            .cyber-btn {
+                padding: 14px 30px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== پس‌زمینه ===== -->
+    <div class="space-bg" id="spaceBg"></div>
+
+    <div class="container">
+
+        <!-- ===== هدر ===== -->
+        <div class="epic-header">
+            <span class="logo-icon">🏫</span>
+            <h1>LTRP</h1>
+            <p class="subtitle">پلتفرم هوشمند مدیریت مدارس</p>
+            <p class="tagline">مدیریت فعالیت‌های مدارس، دانش‌آموزان، معلمان و آزمون‌ها</p>
+        </div>
+
+        <!-- ===== کارت دانش‌آموز (بزرگ) ===== -->
+        <div class="student-section">
+            <div class="cyber-card" onclick="cyberLogin('student')">
+                <span class="icon">🎓</span>
+                <h3>پنل دانش‌آموز</h3>
+                <p>شرکت در آزمون‌ها، مشاهده نتایج و پیگیری پیشرفت تحصیلی</p>
+                <div class="features">
+                    <span>📝 آزمون</span>
+                    <span>📊 نتایج</span>
+                    <span>🎯 پیشرفت</span>
+                </div>
+                <button class="cyber-btn">ورود</button>
+            </div>
+        </div>
+
+        <!-- ===== دکمه‌های ریز (معلم + توسعه‌دهنده) ===== -->
+        <div class="mini-login-buttons">
+            <button class="mini-login-btn mini-teacher" onclick="cyberLogin('teacher')">
+                <i class="fas fa-chalkboard-teacher"></i> معلم
+            </button>
+            <button class="mini-login-btn mini-developer" onclick="cyberLogin('developer')">
+                <i class="fas fa-code"></i> توسعه‌دهنده
+            </button>
+        </div>
+
+        <!-- ===== آمار ===== -->
+        <div class="cyber-system-info">
+            <h3>📊 آمار سیستم</h3>
+            <div class="cyber-stats">
+                <div class="cyber-stat-item">
+                    <div class="cyber-stat-number" id="cyberStudentsCount">۰</div>
+                    <div class="cyber-stat-label">دانش‌آموز</div>
+                </div>
+                <div class="cyber-stat-item">
+                    <div class="cyber-stat-number" id="cyberTeachersCount">۰</div>
+                    <div class="cyber-stat-label">معلم</div>
+                </div>
+                <div class="cyber-stat-item">
+                    <div class="cyber-stat-number" id="cyberExamsCount">۰</div>
+                    <div class="cyber-stat-label">آزمون</div>
+                </div>
+                <div class="cyber-stat-item">
+                    <div class="cyber-stat-number" id="cyberResultsCount">۰</div>
+                    <div class="cyber-stat-label">نتیجه</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== فوتر ===== -->
+        <div class="cyber-footer">
+            <p class="credit">✨ developed by Cypher.g</p>
+            <p>LTRP | پلتفرم هوشمند مدیریت مدارس</p>
+            <div class="cyber-footer-links">
+                <a href="help.html" class="cyber-footer-link">راهنما</a>
+                <a href="about.html" class="cyber-footer-link">درباره ما</a>
+                <a href="rules.html" class="cyber-footer-link">قوانین</a>
+                <a href="contact.html" class="cyber-footer-link">تماس</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  ۱. ستاره‌های پس‌زمینه
+        // ============================================================
+        (function createStars() {
+            const bg = document.getElementById('spaceBg');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (2 + Math.random() * 4) + 's');
+                star.style.animationDelay = (Math.random() * 5) + 's';
+                star.style.opacity = 0.1 + Math.random() * 0.5;
+                bg.appendChild(star);
+            }
+        })();
+
+        // ============================================================
+        //  ۲. ورود
+        // ============================================================
+        function cyberLogin(userType) {
+            const container = document.querySelector('.container');
+            container.style.transition = 'all 0.5s ease';
+            container.style.opacity = '0.6';
+            container.style.transform = 'scale(0.95)';
+
+            setTimeout(() => {
+                switch(userType) {
+                    case 'student':
+                        window.location.href = 'student-login.html';
+                        break;
+                    case 'teacher':
+                        const teachers = JSON.parse(localStorage.getItem('teachers')) || [];
+                        if (teachers.length > 0) {
+                            window.location.href = 'teacher-login.html';
+                        } else {
+                            window.location.href = 'teacher-login.html';
+                        }
+                        break;
+                    case 'developer':
+                        const developer = JSON.parse(localStorage.getItem('developer'));
+                        if (developer && developer.isActive) {
+                            window.location.href = 'developer-login.html';
+                        } else {
+                            window.location.href = 'developer-login.html';
+                        }
+                        break;
+                }
+            }, 600);
+        }
+
+        // ============================================================
+        //  ۳. انیمیشن شمارنده
+        // ============================================================
+        function animateCounter(elementId, target) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            let current = 0;
+            const step = Math.max(1, Math.floor(target / 25));
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    el.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    el.textContent = current;
+                }
+            }, 40);
+        }
+
+        // ============================================================
+        //  ۴. بارگذاری آمار از API
+        // ============================================================
+        async function loadStats() {
+            try {
+                const res = await fetch('https://ltrp.ir/backend/api.php?action=get_stats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ school_code: 'ghoghnos' })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    animateCounter('cyberStudentsCount', data.stats.students || 0);
+                    animateCounter('cyberTeachersCount', data.stats.teachers || 0);
+                    animateCounter('cyberExamsCount', data.stats.exams || 0);
+                    animateCounter('cyberResultsCount', data.stats.results || 0);
+                } else {
+                    loadStatsFromLocal();
+                }
+            } catch(e) {
+                console.log('⚠️ API offline, using localStorage');
+                loadStatsFromLocal();
+            }
+        }
+
+        function loadStatsFromLocal() {
+            const students = JSON.parse(localStorage.getItem('students')) || [];
+            const teachers = JSON.parse(localStorage.getItem('teachers')) || [];
+            const exams = JSON.parse(localStorage.getItem('exams')) || [];
+            const results = JSON.parse(localStorage.getItem('examResults')) || [];
+
+            animateCounter('cyberStudentsCount', students.length);
+            animateCounter('cyberTeachersCount', teachers.length);
+            animateCounter('cyberExamsCount', exams.length);
+            animateCounter('cyberResultsCount', results.length);
+        }
+
+        // ============================================================
+        //  ۵. راه‌اندازی
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // پاک کردن سشن
+            localStorage.removeItem('currentStudent');
+            localStorage.removeItem('currentTeacher');
+            localStorage.removeItem('currentDeveloper');
+
+            // بارگذاری آمار
+            loadStats();
+
+            console.log('🏫 LTRP | پلتفرم هوشمند مدیریت مدارس');
+            console.log('✨ developed by Cypher.g');
+        });
+    </script>
+</body>
+</html>

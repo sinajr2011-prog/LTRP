@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرکت در آزمون | ققنوس ادب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .exam-container { max-width: 1000px; margin: 0 auto; }
+        .exam-header { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .exam-title h2 { color: #2c3e50; margin-bottom: 5px; }
+        .timer-box { background: linear-gradient(45deg, #2c3e50, #34495e); color: white; padding: 10px 20px; border-radius: 15px; text-align: center; min-width: 150px; }
+        .timer-box.warning { background: linear-gradient(45deg, #e67e22, #d35400); animation: pulse 1s infinite; }
+        .timer-box.danger { background: linear-gradient(45deg, #e74c3c, #c0392b); animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .timer-digits { font-size: 28px; font-weight: bold; font-family: monospace; }
+        .progress-area { background: rgba(255,255,255,0.95); padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; }
+        .progress-bar { height: 8px; background: #ecf0f1; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(45deg, #27ae60, #2ecc71); width: 0%; transition: width 0.3s; }
+        .stats { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: 13px; }
+        .question-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; max-height: 120px; overflow-y: auto; padding: 5px; }
+        .nav-btn { width: 45px; height: 45px; border: 2px solid #bdc3c7; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; font-weight: bold; transition: all 0.2s; }
+        .nav-btn.current { background: #3498db; color: white; border-color: #3498db; transform: scale(1.05); }
+        .nav-btn.answered { background: #27ae60; color: white; border-color: #27ae60; }
+        .nav-btn.flagged { background: #f39c12; color: white; border-color: #f39c12; }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .question-card { background: rgba(255,255,255,0.95); padding: 25px; border-radius: 20px; margin-bottom: 20px; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .flag-btn { background: none; border: 2px solid #f39c12; color: #f39c12; padding: 8px 16px; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: bold; }
+        .flag-btn.active { background: #f39c12; color: white; }
+        .question-text { font-size: 1.2rem; line-height: 1.7; margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 12px; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option { padding: 15px; border: 2px solid #ecf0f1; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 15px; }
+        .option:hover { border-color: #3498db; background: rgba(52,152,219,0.05); transform: translateX(-5px); }
+        .option.selected { border-color: #3498db; background: rgba(52,152,219,0.1); }
+        .option-letter { width: 35px; height: 35px; background: #ecf0f1; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .option.selected .option-letter { background: #3498db; color: white; }
+        .option-text { flex: 1; font-size: 1rem; }
+        .nav-buttons { display: flex; justify-content: space-between; gap: 15px; margin-top: 20px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
+        .btn-success { background: linear-gradient(45deg, #27ae60, #219a52); color: white; }
+        .btn-warning { background: linear-gradient(45deg, #f39c12, #e67e22); color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .warning-msg { background: #fff3cd; color: #856404; padding: 12px; border-radius: 10px; margin-top: 15px; text-align: center; font-size: 14px; }
+        @media (max-width: 768px) { .exam-header { flex-direction: column; text-align: center; } .nav-btn { width: 38px; height: 38px; } .option { padding: 12px; } }
+    </style>
+</head>
+<body>
+    <div class="exam-container">
+        <!-- هدر آزمون -->
+        <div class="exam-header">
+            <div class="exam-title">
+                <h2 id="examTitle">در حال بارگذاری...</h2>
+                <p id="examMeta"></p>
+            </div>
+            <div class="timer-box" id="timerBox">
+                <div class="timer-digits" id="timerDisplay">00:00</div>
+                <div style="font-size: 12px;">زمان باقیمانده</div>
+            </div>
+        </div>
+
+        <!-- پیشرفت و ناوبری -->
+        <div class="progress-area">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="stats">
+                <span>📊 پاسخ داده شده: <strong id="answeredCount">0</strong> / <span id="totalCount">0</span></span>
+                <span>🏁 نشان‌گذاری شده: <strong id="flaggedCount">0</strong></span>
+                <span>📈 پیشرفت: <strong id="percentText">0%</strong></span>
+            </div>
+            <div class="question-nav" id="questionNav"></div>
+        </div>
+
+        <!-- سوال جاری -->
+        <div class="question-card">
+            <div class="question-header">
+                <h3>سوال <span id="currentQNum">1</span> از <span id="totalQNum">0</span></h3>
+                <button class="flag-btn" id="flagBtn" onclick="toggleFlag()"><i class="fas fa-flag"></i> نشان‌گذاری</button>
+            </div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options-list" id="optionsContainer"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-warning" onclick="prevQuestion()"><i class="fas fa-arrow-right"></i> قبلی</button>
+                <button class="btn btn-primary" onclick="nextQuestion()">بعدی <i class="fas fa-arrow-left"></i></button>
+            </div>
+        </div>
+
+        <!-- دکمه ارسال نهایی -->
+        <button class="btn btn-success" id="submitBtn" onclick="showSubmitConfirm()" style="width:100%; padding:15px; font-size:16px;">
+            <i class="fas fa-paper-plane"></i> پایان آزمون و ارسال پاسخ‌ها
+        </button>
+        <div id="autoSaveMsg" class="warning-msg" style="display: none;">💾 پیشرفت شما به صورت خودکار ذخیره می‌شود</div>
+    </div>
+
+    <script>
+        const API_URL = 'https://ltrp.ir/backend';  // خالی برای استفاده از آدرس نسبی
+        let examData = null;
+        let studentInfo = null;
+        let userAnswers = [];
+        let flaggedQuestions = [];
+        let currentIndex = 0;
+        let timeLeft = 0;
+        let timerInterval = null;
+        let examStartTime = null;
+        let examId = null;
+
+        // ==================== بارگذاری اولیه ====================
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            examId = urlParams.get('examId');
+            
+            if (!examId) {
+                alert('شناسه آزمون یافت نشد');
+                window.location.href = 'student-dashboard.html';
+                return;
+            }
+            
+            await loadStudentInfo();
+            await loadExamFromAPI();
+            
+            if (examData) {
+                initializeExam();
+            } else {
+                alert('آزمون یافت نشد');
+                window.location.href = 'student-dashboard.html';
+            }
+        });
+
+        async function loadStudentInfo() {
+            const saved = localStorage.getItem('currentStudent');
+            if (!saved) {
+                window.location.href = 'student-login.html';
+                return;
+            }
+            studentInfo = JSON.parse(saved);
+        }
+
+        async function loadExamFromAPI() {
+            try {
+                // گرفتن از API
+                const response = await fetch(`${API_URL}/api/get_exams.php?id=${examId}`);
+                let exams = await response.json();
+                
+                // اگر آرایه بود، پیدا کن
+                if (Array.isArray(exams)) {
+                    examData = exams.find(e => e.id == examId);
+                } else {
+                    examData = exams;
+                }
+                
+                // اگه توی API نبود، از localStorage بگیر (فال‌بک)
+                if (!examData) {
+                    console.log('آزمون در API یافت نشد، جستجو در localStorage...');
+                    const localExams = JSON.parse(localStorage.getItem('exams')) || [];
+                    examData = localExams.find(e => e.id == examId);
+                }
+                
+                if (!examData) {
+                    console.error('آزمون با ID', examId, 'پیدا نشد');
+                    alert('آزمون یافت نشد!');
+                    window.location.href = 'student-dashboard.html';
+                    return;
+                }
+                
+                // بررسی زمان
+                const now = new Date();
+                const endTime = new Date(examData.end_time);
+                if (now > endTime) {
+                    alert('⏰ زمان این آزمون به پایان رسیده است!');
+                    window.location.href = 'student-dashboard.html';
+                    return;
+                }
+                
+                console.log('آزمون پیدا شد:', examData.title);
+                
+            } catch(e) {
+                console.error('Error loading exam:', e);
+                // فال‌بک به localStorage
+                const localExams = JSON.parse(localStorage.getItem('exams')) || [];
+                examData = localExams.find(e => e.id == examId);
+                
+                if (!examData) {
+                    alert('خطا در بارگذاری آزمون');
+                    window.location.href = 'student-dashboard.html';
+                }
+            }
+        }
+        
+        // ==================== مقداردهی اولیه آزمون ====================
+        function initializeExam() {
+            const storageKey = `exam_progress_${examData.id}_${studentInfo.national_code}`;
+            const savedProgress = localStorage.getItem(storageKey);
+            
+            const now = new Date();
+            const endTime = new Date(examData.end_time);
+            const totalSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
+            
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                userAnswers = progress.userAnswers || new Array(examData.questions.length).fill(null);
+                flaggedQuestions = progress.flaggedQuestions || new Array(examData.questions.length).fill(false);
+                timeLeft = progress.timeLeft || totalSeconds;
+                examStartTime = progress.examStartTime || Date.now();
+                currentIndex = progress.currentIndex || 0;
+                document.getElementById("autoSaveMsg").style.display = "block";
+                setTimeout(() => { document.getElementById("autoSaveMsg").style.display = "none"; }, 3000);
+            } else {
+                userAnswers = new Array(examData.questions.length).fill(null);
+                flaggedQuestions = new Array(examData.questions.length).fill(false);
+                timeLeft = totalSeconds;
+                examStartTime = Date.now();
+                currentIndex = 0;
+            }
+            
+            if (timeLeft <= 0) {
+                alert("⏰ زمان این آزمون به پایان رسیده است!");
+                window.location.href = "student-dashboard.html";
+                return;
+            }
+            
+            document.getElementById("examTitle").innerHTML = examData.title;
+            document.getElementById("examMeta").innerHTML = `📖 ${examData.subject} | 🎯 پایه ${examData.class_level} | 📋 ${examData.questions.length} سوال`;
+            document.getElementById("totalQNum").innerText = examData.questions.length;
+            document.getElementById("totalCount").innerText = examData.questions.length;
+            
+            startTimer();
+            createNavigation();
+            loadQuestion(currentIndex);
+            updateStats();
+            startAutoSave();
+            
+            window.addEventListener("beforeunload", function(e) {
+                if (timeLeft > 0 && timeLeft < totalSeconds) {
+                    saveProgress();
+                    e.preventDefault();
+                    e.returnValue = "آیا از خروج مطمئن هستید؟";
+                    return e.returnValue;
+                }
+            });
+        }
+
+        // ==================== تایمر ====================
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    autoSubmitExam();
+                } else {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (timeLeft <= 300) {
+                        const timerBox = document.getElementById('timerBox');
+                        timerBox.classList.add('warning');
+                        if (timeLeft <= 60) timerBox.classList.add('danger');
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timerDisplay').innerHTML = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // ==================== ذخیره خودکار ====================
+        function saveProgress() {
+            const storageKey = `exam_progress_${examId}_${studentInfo.national_code || studentInfo.nationalCode}`;
+            const progress = {
+                userAnswers: userAnswers,
+                flaggedQuestions: flaggedQuestions,
+                timeLeft: timeLeft,
+                examStartTime: examStartTime,
+                currentIndex: currentIndex,
+                lastSave: Date.now()
+            };
+            localStorage.setItem(storageKey, JSON.stringify(progress));
+        }
+
+        function startAutoSave() {
+            setInterval(() => {
+                if (timeLeft > 0 && timeLeft < examData.duration * 60) {
+                    saveProgress();
+                }
+            }, 30000);
+        }
+
+        // ==================== ناوبری ====================
+        function createNavigation() {
+            const nav = document.getElementById('questionNav');
+            nav.innerHTML = '';
+            for (let i = 0; i < examData.questions.length; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.textContent = i + 1;
+                if (userAnswers[i] !== null && userAnswers[i] !== undefined) btn.classList.add('answered');
+                if (flaggedQuestions[i]) btn.classList.add('flagged');
+                if (i === currentIndex) btn.classList.add('current');
+                btn.onclick = () => goToQuestion(i);
+                nav.appendChild(btn);
+            }
+        }
+
+        function updateNavigation() {
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach((btn, idx) => {
+                btn.classList.remove('answered', 'flagged', 'current');
+                if (userAnswers[idx] !== null && userAnswers[idx] !== undefined) btn.classList.add('answered');
+                if (flaggedQuestions[idx]) btn.classList.add('flagged');
+                if (idx === currentIndex) btn.classList.add('current');
+            });
+        }
+
+        function loadQuestion(index) {
+            const q = examData.questions[index];
+            document.getElementById('currentQNum').innerText = index + 1;
+            document.getElementById('questionText').innerHTML = q.text;
+            
+            const updateFlagBtn = () => {
+                const flagBtn = document.getElementById('flagBtn');
+                if (flaggedQuestions[index]) {
+                    flagBtn.classList.add('active');
+                    flagBtn.innerHTML = '<i class="fas fa-flag"></i> حذف نشان';
+                } else {
+                    flagBtn.classList.remove('active');
+                    flagBtn.innerHTML = '<i class="fas fa-flag"></i> نشان‌گذاری';
+                }
+            };
+            updateFlagBtn();
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            const letters = ['الف', 'ب', 'ج', 'د'];
+            
+            q.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                if (userAnswers[index] === idx) div.classList.add('selected');
+                div.onclick = () => selectOption(idx);
+                div.innerHTML = `
+                    <div class="option-letter">${letters[idx]}</div>
+                    <div class="option-text">${opt}</div>
+                `;
+                container.appendChild(div);
+            });
+            
+            updateNavigation();
+        }
+
+        function selectOption(optionIndex) {
+            userAnswers[currentIndex] = optionIndex;
+            loadQuestion(currentIndex);
+            updateStats();
+            saveProgress();
+        }
+
+        function toggleFlag() {
+            flaggedQuestions[currentIndex] = !flaggedQuestions[currentIndex];
+            loadQuestion(currentIndex);
+            updateStats();
+            saveProgress();
+        }
+
+        function nextQuestion() {
+            if (currentIndex < examData.questions.length - 1) {
+                currentIndex++;
+                loadQuestion(currentIndex);
+                updateStats();
+            } else {
+                if (confirm('به آخرین سوال رسیده‌اید. آیا می‌خواهید آزمون را پایان دهید؟')) {
+                    showSubmitConfirm();
+                }
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadQuestion(currentIndex);
+                updateStats();
+            }
+        }
+
+        function goToQuestion(index) {
+            currentIndex = index;
+            loadQuestion(currentIndex);
+            updateStats();
+        }
+
+        // ==================== آمار ====================
+        function updateStats() {
+            const answered = userAnswers.filter(a => a !== null && a !== undefined).length;
+            const flagged = flaggedQuestions.filter(f => f).length;
+            const percent = Math.round((answered / examData.questions.length) * 100);
+            document.getElementById('answeredCount').innerText = answered;
+            document.getElementById('flaggedCount').innerText = flagged;
+            document.getElementById('percentText').innerText = `${percent}%`;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+        }
+
+        // ==================== محاسبه نمره ====================
+        function calculateScore() {
+            let score = 0;
+            examData.questions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correctAnswer) score++;
+            });
+            return score;
+        }
+
+        // ==================== ارسال آزمون ====================
+        function showSubmitConfirm() {
+            const answered = userAnswers.filter(a => a !== null && a !== undefined).length;
+            const unanswered = examData.questions.length - answered;
+            let msg = `آیا از پایان آزمون مطمئن هستید؟\n\n`;
+            msg += `✅ پاسخ داده شده: ${answered}\n`;
+            msg += `❌ پاسخ نداده: ${unanswered}\n`;
+            msg += `🏁 نشان‌گذاری شده: ${flaggedQuestions.filter(f => f).length}\n\n`;
+            msg += `پس از تأیید، پاسخ‌های شما ثبت خواهد شد.`;
+            
+            if (confirm(msg)) {
+                submitExam();
+            }
+        }
+
+        async function submitExam() {
+            clearInterval(timerInterval);
+            
+            const score = calculateScore();
+            const totalScore = examData.questions.length;
+            const percentage = Math.round((score / totalScore) * 100);
+            
+            const resultData = {
+                exam_id: examData.id,
+                exam_title: examData.title,
+                student_id: studentInfo.national_code || studentInfo.nationalCode,
+                student_national_code: studentInfo.national_code || studentInfo.nationalCode,
+                student_name: studentInfo.full_name,
+                score: score,
+                total_score: totalScore,
+                percentage: percentage,
+                answers: userAnswers,
+                submitted_at: new Date().toISOString()
+            };
+            
+            try {
+                // ========== ذخیره در API ==========
+                const response = await fetch(`https://ltrp.ir/backend/api.php?action=submit_result`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(resultData)
+                });
+                
+                // ========== ذخیره در localStorage برای معلم (فال‌بک) ==========
+                let examResults = JSON.parse(localStorage.getItem('examResults')) || [];
+                examResults.push(resultData);
+                localStorage.setItem('examResults', JSON.stringify(examResults));
+                
+                // پاک کردن پیشرفت ذخیره شده
+                const storageKey = `exam_progress_${examId}_${studentInfo.national_code || studentInfo.nationalCode}`;
+                localStorage.removeItem(storageKey);
+                
+                if (response.ok) {
+                    alert(`✅ آزمون با موفقیت ثبت شد!\nنمره شما: ${score} از ${totalScore} (${percentage}%)`);
+                } else {
+                    alert('⚠️ نتیجه در مرورگر ذخیره شد اما در سرور ثبت نشد');
+                }
+                
+                window.location.href = `exam-result.html?examId=${examData.id}&score=${score}&total=${totalScore}&percentage=${percentage}`;
+                
+            } catch(error) {
+                console.error('Error:', error);
+                // فقط در localStorage ذخیره کن
+                let examResults = JSON.parse(localStorage.getItem('examResults')) || [];
+                examResults.push(resultData);
+                localStorage.setItem('examResults', JSON.stringify(examResults));
+                
+                alert('✅ نتیجه ذخیره شد (سرور در دسترس نبود)');
+                window.location.href = `exam-result.html?examId=${examData.id}&score=${score}&total=${totalScore}&percentage=${percentage}`;
+            }
+        }
+
+        async function autoSubmitExam() {
+            alert('⏰ زمان آزمون به پایان رسید! پاسخ‌های شما به طور خودکار ارسال می‌شوند.');
+            await submitExam();
+        }
+         
+    </script>
+</body>
+</html>

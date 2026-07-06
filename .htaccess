@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+</IfModule>
+
+<FilesMatch "\.(html|php)$">
+    Require all granted
+</FilesMatch>
+
+Options -Indexes
+DirectoryIndex index.html index.php

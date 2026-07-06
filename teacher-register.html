@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثبت‌نام معلم | ققنوس ادب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .register-container { background: rgba(255,255,255,0.95); border-radius: 30px; padding: 40px; width: 100%; max-width: 550px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .register-header { text-align: center; margin-bottom: 30px; }
+        .register-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .register-icon i { font-size: 36px; color: white; }
+        .register-header h2 { color: #2c3e50; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #2c3e50; font-weight: bold; }
+        input, select { width: 100%; padding: 12px 15px; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 14px; background: white; }
+        input:focus, select:focus { outline: none; border-color: #e74c3c; }
+        input.error { border-color: #e74c3c; }
+        input.valid { border-color: #27ae60; }
+        .validation-status { font-size: 11px; margin-top: 5px; padding: 4px 8px; border-radius: 6px; }
+        .validation-valid { color: #27ae60; background: rgba(39,174,96,0.1); }
+        .validation-invalid { color: #e74c3c; background: rgba(231,76,60,0.1); }
+        .teacher-code-info { background: #e3f2fd; border-radius: 10px; padding: 12px; margin-bottom: 20px; text-align: center; border-right: 3px solid #e74c3c; }
+        .register-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 14px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; transition: all 0.3s; }
+        .register-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .login-link { text-align: center; margin-top: 20px; }
+        .back-btn { background: #95a5a6; color: white; padding: 12px; border: none; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 15px; }
+        .info-box { background: #f0f4ff; border-radius: 10px; padding: 12px; margin-bottom: 20px; border-right: 3px solid #e74c3c; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <div class="register-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+            <h2>📝 ثبت‌نام معلم</h2>
+            <p>لطفاً اطلاعات واقعی خود را وارد کنید</p>
+        </div>
+        <div class="info-box">
+            <i class="fas fa-shield-alt"></i> <strong>اعتبارسنجی دقیق کد ملی ایران</strong>
+            <p>✅ فقط کدهای ملی واقعی معتبر هستند</p>
+        </div>
+        <div class="teacher-code-info">
+            <i class="fas fa-key"></i> برای ثبت‌نام به کد اختصاصی معلم و کد مدرسه نیاز دارید
+        </div>
+        <form id="registerForm">
+            <div class="form-group"><label>👤 نام و نام خانوادگی</label><input type="text" id="fullName" required placeholder="نام کامل"></div>
+            <div class="form-group"><label>📇 کد ملی</label><input type="text" id="nationalCode" maxlength="10" required placeholder="۱۰ رقم کد ملی"><div id="nationalCodeStatus" class="validation-status"></div></div>
+            <div class="form-group"><label>🏫 کد مدرسه</label><input type="text" id="schoolCode" required placeholder="کد مدرسه"><div id="schoolCodeStatus" class="validation-status"></div></div>
+            <div class="form-group"><label>📖 درس تدریس</label><select id="subject" required><option value="">انتخاب کنید</option><option value="فارسی">فارسی</option><option value="ریاضی">ریاضی</option><option value="علوم">علوم</option><option value="انگلیسی">انگلیسی</option></select></div>
+            <div class="form-group"><label>🔑 کد اختصاصی معلم</label><input type="text" id="teacherCode" maxlength="8" required placeholder="کد ۸ رقمی"><div id="teacherCodeStatus" class="validation-status"></div></div>
+            <div class="form-group"><label>🔐 رمز عبور</label><input type="password" id="password" required placeholder="حداقل ۶ کاراکتر"></div>
+            <div class="form-group"><label>🔄 تکرار رمز عبور</label><input type="password" id="confirmPassword" required><div id="passwordMatchStatus" class="validation-status"></div></div>
+            <button type="submit" class="register-btn" id="registerBtn"><i class="fas fa-user-plus"></i> ثبت‌نام</button>
+            <div id="message"></div>
+        </form>
+        <div class="login-link"><p>حساب دارید؟ <a href="teacher-login.html">وارد شوید</a></p></div>
+        <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-right"></i> بازگشت</button>
+    </div>
+
+    <script src="teacher-codes.js"></script>
+    <script>
+        let schools = [];
+        const TEACHER_CODES = window.teacherCodes || ["TEACH123", "MASTER456", "PROF7890", "EDUCATOR", "TUTOR999"];
+
+        async function loadSchools() {
+            schools = JSON.parse(localStorage.getItem('schools')) || [];
+        }
+
+        function validateIranianNationalCode(code) {
+            code = code.toString().trim();
+            if (!code || code.length !== 10 || !/^\d+$/.test(code)) return false;
+            const invalid = ['0000000000','1111111111','2222222222','3333333333','4444444444','5555555555','6666666666','7777777777','8888888888','9999999999'];
+            if (invalid.includes(code)) return false;
+            let sum = 0;
+            for (let i = 0; i < 9; i++) sum += parseInt(code[i]) * (10 - i);
+            let remainder = sum % 11;
+            let control = parseInt(code[9]);
+            return remainder < 2 ? control === remainder : control === (11 - remainder);
+        }
+
+        function updateNationalCodeValidation() {
+            const input = document.getElementById('nationalCode'); const status = document.getElementById('nationalCodeStatus');
+            let code = input.value; input.value = code.replace(/[^0-9]/g, '');
+            if (!input.value) { status.innerHTML = ''; input.classList.remove('error','valid'); checkRegisterButton(); return; }
+            if (validateIranianNationalCode(input.value)) {
+                status.innerHTML = '✅ کد ملی معتبر است'; status.className = 'validation-status validation-valid'; input.classList.remove('error'); input.classList.add('valid');
+            } else {
+                let msg = '❌ کد ملی نامعتبر است'; if (input.value.length !== 10) msg = '❌ کد ملی باید ۱۰ رقم باشد';
+                status.innerHTML = msg; status.className = 'validation-status validation-invalid'; input.classList.add('error'); input.classList.remove('valid');
+            }
+            checkRegisterButton();
+        }
+
+        async function updateSchoolCodeValidation() {
+            const input = document.getElementById('schoolCode'); const status = document.getElementById('schoolCodeStatus');
+            const code = input.value.trim();
+            if (!code) { status.innerHTML = ''; input.classList.remove('error','valid'); checkRegisterButton(); return; }
+            const schoolExists = schools.find(s => s.school_code === code && s.is_active === 1);
+            if (schoolExists) {
+                status.innerHTML = '✅ کد مدرسه معتبر است'; status.className = 'validation-status validation-valid'; input.classList.remove('error'); input.classList.add('valid');
+            } else {
+                status.innerHTML = '❌ کد مدرسه نامعتبر است'; status.className = 'validation-status validation-invalid'; input.classList.add('error'); input.classList.remove('valid');
+            }
+            checkRegisterButton();
+        }
+
+        function updateTeacherCodeValidation() {
+            const input = document.getElementById('teacherCode'); const status = document.getElementById('teacherCodeStatus');
+            let code = input.value.toUpperCase(); input.value = code;
+            if (!code) { status.innerHTML = ''; input.classList.remove('error','valid'); checkRegisterButton(); return; }
+            if (code.length !== 8) { status.innerHTML = '❌ کد باید ۸ رقم باشد'; status.className = 'validation-status validation-invalid'; input.classList.add('error'); input.classList.remove('valid'); checkRegisterButton(); return; }
+            if (TEACHER_CODES.includes(code)) {
+                status.innerHTML = '✅ کد اختصاصی معتبر است'; status.className = 'validation-status validation-valid'; input.classList.remove('error'); input.classList.add('valid');
+            } else {
+                status.innerHTML = '❌ کد اختصاصی نامعتبر است'; status.className = 'validation-status validation-invalid'; input.classList.add('error'); input.classList.remove('valid');
+            }
+            checkRegisterButton();
+        }
+
+        function updatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const status = document.getElementById('passwordMatchStatus');
+            const confirmInput = document.getElementById('confirmPassword');
+            if (!confirm) { status.innerHTML = ''; confirmInput.classList.remove('error','valid'); checkRegisterButton(); return; }
+            if (password === confirm) { status.innerHTML = '✅ رمزها مطابقت دارند'; status.className = 'validation-status validation-valid'; confirmInput.classList.remove('error'); confirmInput.classList.add('valid'); }
+            else { status.innerHTML = '❌ رمزها مطابقت ندارند'; status.className = 'validation-status validation-invalid'; confirmInput.classList.add('error'); confirmInput.classList.remove('valid'); }
+            checkRegisterButton();
+        }
+
+        function checkRegisterButton() {
+            const btn = document.getElementById('registerBtn');
+            const name = document.getElementById('fullName').value;
+            const national = document.getElementById('nationalCode').value;
+            const subject = document.getElementById('subject').value;
+            const schoolCode = document.getElementById('schoolCode').value;
+            const teacherCode = document.getElementById('teacherCode').value;
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const schoolValid = schools.some(s => s.school_code === schoolCode && s.is_active === 1);
+            const codeValid = TEACHER_CODES.includes(teacherCode.toUpperCase());
+            btn.disabled = !(name.trim().length >= 3 && validateIranianNationalCode(national) && subject !== '' && schoolValid && codeValid && pass.length >= 6 && pass === confirm);
+        }
+
+        function registerTeacher() {
+            const fullName = document.getElementById('fullName').value;
+            const nationalCode = document.getElementById('nationalCode').value;
+            const schoolCode = document.getElementById('schoolCode').value.trim();
+            const subject = document.getElementById('subject').value;
+            const teacherCode = document.getElementById('teacherCode').value.toUpperCase();
+            const password = document.getElementById('password').value;
+            const msgDiv = document.getElementById('message');
+
+            const teachers = JSON.parse(localStorage.getItem('teachers')) || [];
+            if (teachers.find(t => t.national_code === nationalCode)) {
+                msgDiv.innerHTML = '<div class="error-message">❌ این کد ملی قبلاً ثبت شده است</div>';
+                return;
+            }
+
+            const newTeacher = {
+                national_code: nationalCode,
+                full_name: fullName,
+                role: 'teacher',
+                password: password,
+                subject: subject,
+                teacher_code: teacherCode,
+                school_code: schoolCode,
+                status: 'فعال',
+                registerDate: new Date().toISOString()
+            };
+
+            teachers.push(newTeacher);
+            localStorage.setItem('teachers', JSON.stringify(teachers));
+
+            msgDiv.innerHTML = '<div class="success-message">✅ ثبت‌نام موفق! در حال انتقال...</div>';
+            setTimeout(() => { window.location.href = 'teacher-login.html'; }, 1500);
+        }
+
+        function goBack() { window.location.href = 'index.html'; }
+
+        document.getElementById('fullName').addEventListener('input', checkRegisterButton);
+        document.getElementById('nationalCode').addEventListener('input', updateNationalCodeValidation);
+        document.getElementById('schoolCode').addEventListener('input', updateSchoolCodeValidation);
+        document.getElementById('teacherCode').addEventListener('input', updateTeacherCodeValidation);
+        document.getElementById('password').addEventListener('input', updatePasswordMatch);
+        document.getElementById('confirmPassword').addEventListener('input', updatePasswordMatch);
+        document.getElementById('subject').addEventListener('change', checkRegisterButton);
+        document.getElementById('registerForm').addEventListener('submit', (e) => { e.preventDefault(); registerTeacher(); });
+
+        document.addEventListener('DOMContentLoaded', async () => { await loadSchools(); checkRegisterButton(); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود توسعه‌دهنده | ققنوس ادب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #0a0a1a, #1a1a3e); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-container { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border-radius: 30px; padding: 40px; width: 100%; max-width: 450px; border: 1px solid rgba(255,255,255,0.1); }
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #2ecc71, #3498db); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .login-icon i { font-size: 36px; color: white; }
+        .login-header h2 { color: white; margin-bottom: 10px; }
+        .login-header p { color: #95a5a6; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; color: #95a5a6; font-weight: bold; }
+        input { width: 100%; padding: 15px; border: 2px solid rgba(255,255,255,0.1); border-radius: 15px; font-size: 16px; background: rgba(0,0,0,0.3); color: white; }
+        input:focus { outline: none; border-color: #2ecc71; }
+        .login-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 16px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; transition: all 0.3s; }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(46,204,113,0.3); }
+        .error-message { color: #e74c3c; text-align: center; margin-top: 15px; padding: 10px; border-radius: 8px; background: rgba(231,76,60,0.1); }
+        .success-message { color: #2ecc71; text-align: center; margin-top: 15px; padding: 10px; border-radius: 8px; background: rgba(46,204,113,0.1); }
+        .developer-warning { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; color: #95a5a6; font-size: 13px; }
+        .back-btn { background: rgba(255,255,255,0.1); color: white; padding: 12px; border: none; border-radius: 10px; cursor: pointer; width: 100%; transition: all 0.3s; margin-top: 15px; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-icon"><i class="fas fa-code"></i></div>
+            <h2>ورود توسعه‌دهنده</h2>
+            <p>دسترسی سطح مدیر سیستم</p>
+        </div>
+        <div class="developer-warning">
+            <i class="fas fa-shield-alt"></i> فقط توسعه‌دهنده اصلی سیستم مجاز به ورود است
+        </div>
+        <form id="loginForm">
+            <div class="form-group"><label>👤 نام کاربری / کد ملی:</label><input type="text" id="username" placeholder="نام کاربری یا کد ملی"></div>
+            <div class="form-group"><label>🔐 رمز عبور:</label><input type="password" id="password" placeholder="رمز عبور"></div>
+            <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> ورود به پنل مدیریت</button>
+            <div id="message"></div>
+        </form>
+        <button class="back-btn" onclick="window.location.href='index.html'">🔙 بازگشت به صفحه اصلی</button>
+    </div>
+
+    <script>
+        const API_URL = 'https://ltrp.ir/backend';
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            const loginBtn = document.querySelector('.login-btn');
+            
+            if (!username || !password) {
+                messageDiv.innerHTML = '<div class="error-message">❌ لطفاً همه فیلدها را پر کنید</div>';
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال بررسی...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api.php?action=login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        identifier: username,
+                        password: password,
+                        role: 'developer'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('currentDeveloper', JSON.stringify(data.user));
+                    messageDiv.innerHTML = '<div class="success-message">✅ ورود موفق! در حال انتقال...</div>';
+                    setTimeout(() => { window.location.href = 'developer-panel.html'; }, 1000);
+                } else {
+                    messageDiv.innerHTML = `<div class="error-message">❌ ${data.error || 'نام کاربری یا رمز عبور اشتباه است'}</div>`;
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ورود به پنل مدیریت';
+                }
+            } catch(error) {
+                console.error('Error:', error);
+                messageDiv.innerHTML = '<div class="error-message">❌ خطا در ارتباط با سرور</div>';
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ورود به پنل مدیریت';
+            }
+        });
+
+        if (localStorage.getItem('currentDeveloper')) {
+            window.location.href = 'developer-panel.html';
+        }
+    </script>
+</body>
+</html>
